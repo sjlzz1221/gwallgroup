@@ -1,6 +1,6 @@
 package org.gwallgroup.common.dubbo;
 
-import org.gwallgroup.common.vo.LoginCheck;
+import org.gwallgroup.common.entity.LoginCheck;
 
 /**
  * 认证接口 认证模块实现 网关调用

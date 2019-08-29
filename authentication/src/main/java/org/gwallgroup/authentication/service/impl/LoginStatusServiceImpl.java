@@ -5,7 +5,7 @@ import javax.annotation.Resource;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.dubbo.config.annotation.Service;
 import org.gwallgroup.common.dubbo.LoginStatusService;
-import org.gwallgroup.common.vo.LoginCheck;
+import org.gwallgroup.common.entity.LoginCheck;
 import org.springframework.data.redis.core.ValueOperations;
 
 @Service

@@ -3,6 +3,7 @@ package org.gwallgroup.common.entity;
 import org.springframework.cloud.gateway.support.NameUtils;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
@@ -14,22 +15,22 @@ import static org.springframework.util.StringUtils.tokenizeToStringArray;
 /**
  * @author jsen
  * @version 1.0
- * @date 2019/8/29 7:07 PM
+ * @date 2019/8/29 7:06 PM
  */
 @Validated
-public class FilterDefinition implements Serializable {
+public class GPredicateDefinition implements Serializable {
     @NotNull
     private String name;
     private Map<String, String> args = new LinkedHashMap<>();
 
-    public FilterDefinition() {
+    public GPredicateDefinition() {
     }
 
-    public FilterDefinition(String text) {
+    public GPredicateDefinition(String text) {
         int eqIdx = text.indexOf('=');
         if (eqIdx <= 0) {
-            setName(text);
-            return;
+            throw new ValidationException("Unable to parse PredicateDefinition text '" + text + "'" +
+                    ", must be of the form name=value");
         }
         setName(text.substring(0, eqIdx));
 
@@ -68,7 +69,7 @@ public class FilterDefinition implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        FilterDefinition that = (FilterDefinition) o;
+        GPredicateDefinition that = (GPredicateDefinition) o;
         return Objects.equals(name, that.name) &&
                 Objects.equals(args, that.args);
     }
@@ -80,7 +81,7 @@ public class FilterDefinition implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("FilterDefinition{");
+        final StringBuilder sb = new StringBuilder("PredicateDefinition{");
         sb.append("name='").append(name).append('\'');
         sb.append(", args=").append(args);
         sb.append('}');

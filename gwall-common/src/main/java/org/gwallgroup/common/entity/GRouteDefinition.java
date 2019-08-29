@@ -1,5 +1,9 @@
 package org.gwallgroup.common.entity;
 
+import com.google.common.collect.Lists;
+import org.springframework.cloud.gateway.filter.FilterDefinition;
+import org.springframework.cloud.gateway.handler.predicate.PredicateDefinition;
+import org.springframework.cloud.gateway.route.RouteDefinition;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
@@ -21,25 +25,52 @@ import static org.springframework.util.StringUtils.tokenizeToStringArray;
  * @date 2019/8/29 7:05 PM
  */
 @Validated
-public class RouteDefinition implements Serializable {
+public class GRouteDefinition implements Serializable {
     @NotEmpty
     private String id = UUID.randomUUID().toString();
 
     @NotEmpty
     @Valid
-    private List<PredicateDefinition> predicates = new ArrayList<>();
+    private List<GPredicateDefinition> predicates = new ArrayList<>();
 
     @Valid
-    private List<FilterDefinition> filters = new ArrayList<>();
+    private List<GFilterDefinition> filters = new ArrayList<>();
 
     @NotNull
     private URI uri;
 
     private int order = 0;
 
-    public RouteDefinition() {}
+    public GRouteDefinition() {
 
-    public RouteDefinition(String text) {
+    }
+    public GRouteDefinition(RouteDefinition routeDefinition) {
+        this.id = routeDefinition.getId();
+        this.uri = routeDefinition.getUri();
+        this.order = routeDefinition.getOrder();
+        if (routeDefinition.getFilters() != null) {
+            List<GFilterDefinition> fds = Lists.newArrayList();
+            for (FilterDefinition item : routeDefinition.getFilters()) {
+                GFilterDefinition fd = new GFilterDefinition();
+                fd.setName(item.getName());
+                fd.setArgs(item.getArgs());
+                fds.add(fd);
+            }
+            setFilters(fds);
+        }
+        if (routeDefinition.getPredicates() != null) {
+            List<GPredicateDefinition> pds = Lists.newArrayList();
+            for (PredicateDefinition item : routeDefinition.getPredicates()) {
+                GPredicateDefinition pd = new GPredicateDefinition();
+                pd.setName(item.getName());
+                pd.setArgs(item.getArgs());
+                pds.add(pd);
+            }
+            setPredicates(pds);
+        }
+    }
+
+    public GRouteDefinition(String text) {
         int eqIdx = text.indexOf('=');
         if (eqIdx <= 0) {
             throw new ValidationException("Unable to parse RouteDefinition text '" + text + "'" +
@@ -53,7 +84,7 @@ public class RouteDefinition implements Serializable {
         setUri(URI.create(args[0]));
 
         for (int i=1; i < args.length; i++) {
-            this.predicates.add(new PredicateDefinition(args[i]));
+            this.predicates.add(new GPredicateDefinition(args[i]));
         }
     }
 
@@ -65,19 +96,19 @@ public class RouteDefinition implements Serializable {
         this.id = id;
     }
 
-    public List<PredicateDefinition> getPredicates() {
+    public List<GPredicateDefinition> getPredicates() {
         return predicates;
     }
 
-    public void setPredicates(List<PredicateDefinition> predicates) {
+    public void setPredicates(List<GPredicateDefinition> predicates) {
         this.predicates = predicates;
     }
 
-    public List<FilterDefinition> getFilters() {
+    public List<GFilterDefinition> getFilters() {
         return filters;
     }
 
-    public void setFilters(List<FilterDefinition> filters) {
+    public void setFilters(List<GFilterDefinition> filters) {
         this.filters = filters;
     }
 
@@ -105,11 +136,11 @@ public class RouteDefinition implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        RouteDefinition routeDefinition = (RouteDefinition) o;
-        return Objects.equals(id, routeDefinition.id) &&
-                Objects.equals(predicates, routeDefinition.predicates) &&
-                Objects.equals(order, routeDefinition.order) &&
-                Objects.equals(uri, routeDefinition.uri);
+        GRouteDefinition GRouteDefinition = (GRouteDefinition) o;
+        return Objects.equals(id, GRouteDefinition.id) &&
+                Objects.equals(predicates, GRouteDefinition.predicates) &&
+                Objects.equals(order, GRouteDefinition.order) &&
+                Objects.equals(uri, GRouteDefinition.uri);
     }
 
     @Override

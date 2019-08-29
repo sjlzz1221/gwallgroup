@@ -3,9 +3,10 @@ package org.gwallgroup.gwall.filter.authentication;
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.setResponseStatus;
 
 import com.alibaba.nacos.common.util.Md5Utils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.dubbo.config.annotation.Reference;
 import org.gwallgroup.common.dubbo.LoginStatusService;
-import org.gwallgroup.common.vo.LoginCheck;
+import org.gwallgroup.common.entity.LoginCheck;
 import org.gwallgroup.gwall.constants.Xheader;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -39,10 +40,11 @@ public class AuthenticationGatewayFilterFactory extends AbstractGatewayFilterFac
       String token = getAttr(tokenKey, req, null);
       LoginCheck loginCheck = loginStatusService.isLogin(serviceType, loginType, version, tokenKey, token);
       setResponseStatus(exchange, HttpStatus.resolve(loginCheck.getCode()));
-      req.getHeaders().add(Xheader.X_P, loginCheck.getPermissions());
-      req.getHeaders().add(Xheader.X_X, Xheader.AC);
       if (loginCheck.getCode() == HttpStatus.OK.value()) {
-        return chain.filter(exchange);
+        ServerHttpRequest request = exchange.getRequest().mutate()
+            .header(Xheader.X_P, loginCheck.getPermissions())
+            .header(Xheader.X_X, Xheader.AC).build();
+        return chain.filter(exchange.mutate().request(request).build());
       } else {
         // 401 or else complete
         return exchange.getResponse().setComplete();

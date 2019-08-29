@@ -5,8 +5,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.dubbo.config.annotation.Service;
 import org.gwallgroup.common.dubbo.RouteService;
-import org.gwallgroup.common.utils.ResponseBase;
-import org.gwallgroup.common.utils.ResponseHelp;
+import org.gwallgroup.common.entity.GFilterDefinition;
+import org.gwallgroup.common.entity.GPredicateDefinition;
+import org.gwallgroup.common.entity.GRouteDefinition;
 import org.springframework.cloud.gateway.event.RefreshRoutesEvent;
 import org.springframework.cloud.gateway.filter.FilterDefinition;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -74,7 +75,7 @@ public class RouteServiceImpl implements RouteService, ApplicationEventPublisher
                 r.put("route_id", route.getId());
                 r.put("order", route.getOrder());
                 if (defs.containsKey(route.getId())) {
-                    r.put("route_definition", defs.get(route.getId()));
+                    r.put("route_definition", new GRouteDefinition(defs.get(route.getId())));
                 } else {
                     HashMap<String, Object> obj = new HashMap();
                     obj.put("predicate", route.getPredicate().toString());
@@ -102,16 +103,15 @@ public class RouteServiceImpl implements RouteService, ApplicationEventPublisher
     }
 
     @Override
-    public boolean save(String id, org.gwallgroup.common.entity.RouteDefinition route) {
+    public boolean save(String id, GRouteDefinition route) {
         RouteDefinition rd = new RouteDefinition();
-        rd.setId(route.getId());
+        rd.setId(id);
         rd.setOrder(route.getOrder());
         String url = route.getUri().toString();
         rd.setUri(URI.create(url));
-        route.setId(id);
         if (route.getFilters() != null) {
             List<FilterDefinition> fds = Lists.newArrayList();
-            for (org.gwallgroup.common.entity.FilterDefinition item : route.getFilters()) {
+            for (GFilterDefinition item : route.getFilters()) {
                 FilterDefinition fd = new FilterDefinition();
                 fd.setName(item.getName());
                 fd.setArgs(item.getArgs());
@@ -121,7 +121,7 @@ public class RouteServiceImpl implements RouteService, ApplicationEventPublisher
         }
         if (route.getPredicates() != null) {
             List<PredicateDefinition> pds = Lists.newArrayList();
-            for (org.gwallgroup.common.entity.PredicateDefinition item : route.getPredicates()) {
+            for (GPredicateDefinition item : route.getPredicates()) {
                 PredicateDefinition pd = new PredicateDefinition();
                 pd.setName(item.getName());
                 pd.setArgs(item.getArgs());
@@ -129,36 +129,29 @@ public class RouteServiceImpl implements RouteService, ApplicationEventPublisher
             }
             rd.setPredicates(pds);
         }
-
-        log.debug("Saving route: " + route);
+        log.debug("Saving route: " + rd);
         this.routeDefinitionWriter.save(Mono.just(rd)).then(Mono.defer(() -> {
             return Mono.just(ResponseEntity.created(URI.create("/routes/" + id)).build());
         })).block();
         return true;
     }
 
-  public static void main(String[] args) {
-    //
-      URI uri = URI.create("lb://sdfsdf");
-      System.out.println(uri);
-  }
-
     @Override
-    public ResponseEntity<Object> delete(String id) {
-        return this.routeDefinitionWriter.delete(Mono.just(id)).then(Mono.defer(() -> {
-            return Mono.just(ResponseEntity.ok().build());
-        })).onErrorResume((t) -> {
-            return t instanceof NotFoundException;
-        }, (t) -> {
-            return Mono.just(ResponseEntity.notFound().build());
-        }).block();
+    public boolean delete(String id) {
+        this.routeDefinitionWriter.delete(Mono.just(id)).block();
+        return true;
     }
 
     @Override
-    public ResponseEntity<RouteDefinition> route(String id) {
+    public GRouteDefinition route(String id) {
         return this.routeDefinitionLocator.getRouteDefinitions().filter((route) -> {
             return route.getId().equals(id);
-        }).singleOrEmpty().map(ResponseEntity::ok).switchIfEmpty(Mono.just(ResponseEntity.notFound().build())).block();
+        }).singleOrEmpty().map(item -> {
+            if (item != null) {
+                return new GRouteDefinition(item);
+            }
+            return null;
+        }).block();
     }
 
     @Override

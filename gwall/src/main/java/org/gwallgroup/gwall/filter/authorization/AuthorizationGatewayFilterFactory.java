@@ -3,8 +3,6 @@ package org.gwallgroup.gwall.filter.authorization;
 import com.alibaba.nacos.common.util.Md5Utils;
 import org.apache.dubbo.config.annotation.Reference;
 import org.gwallgroup.common.dubbo.AccessService;
-import org.gwallgroup.common.dubbo.LoginStatusService;
-import org.gwallgroup.common.vo.LoginCheck;
 import org.gwallgroup.gwall.constants.Xheader;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;

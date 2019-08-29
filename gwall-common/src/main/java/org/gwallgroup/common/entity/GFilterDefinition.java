@@ -3,7 +3,6 @@ package org.gwallgroup.common.entity;
 import org.springframework.cloud.gateway.support.NameUtils;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
@@ -15,22 +14,22 @@ import static org.springframework.util.StringUtils.tokenizeToStringArray;
 /**
  * @author jsen
  * @version 1.0
- * @date 2019/8/29 7:06 PM
+ * @date 2019/8/29 7:07 PM
  */
 @Validated
-public class PredicateDefinition implements Serializable {
+public class GFilterDefinition implements Serializable {
     @NotNull
     private String name;
     private Map<String, String> args = new LinkedHashMap<>();
 
-    public PredicateDefinition() {
+    public GFilterDefinition() {
     }
 
-    public PredicateDefinition(String text) {
+    public GFilterDefinition(String text) {
         int eqIdx = text.indexOf('=');
         if (eqIdx <= 0) {
-            throw new ValidationException("Unable to parse PredicateDefinition text '" + text + "'" +
-                    ", must be of the form name=value");
+            setName(text);
+            return;
         }
         setName(text.substring(0, eqIdx));
 
@@ -69,7 +68,7 @@ public class PredicateDefinition implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        PredicateDefinition that = (PredicateDefinition) o;
+        GFilterDefinition that = (GFilterDefinition) o;
         return Objects.equals(name, that.name) &&
                 Objects.equals(args, that.args);
     }
@@ -81,7 +80,7 @@ public class PredicateDefinition implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("PredicateDefinition{");
+        final StringBuilder sb = new StringBuilder("FilterDefinition{");
         sb.append("name='").append(name).append('\'');
         sb.append(", args=").append(args);
         sb.append('}');

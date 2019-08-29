@@ -1,5 +1,6 @@
-package org.gwallgroup.common.vo;
+package org.gwallgroup.common.entity;
 
+import java.io.Serializable;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -10,7 +11,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class LoginCheck {
+public class LoginCheck implements Serializable {
     /**
      * http code
      */
