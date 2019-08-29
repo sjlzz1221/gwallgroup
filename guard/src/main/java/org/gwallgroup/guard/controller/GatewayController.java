@@ -4,7 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.dubbo.config.annotation.Reference;
 import org.gwallgroup.common.dubbo.RouteService;
-import org.springframework.cloud.gateway.route.RouteDefinition;
+import org.gwallgroup.common.entity.RouteDefinition;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

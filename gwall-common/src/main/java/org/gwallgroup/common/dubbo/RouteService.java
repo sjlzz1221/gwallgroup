@@ -1,8 +1,7 @@
 package org.gwallgroup.common.dubbo;
 
-import org.springframework.cloud.gateway.route.RouteDefinition;
+import org.gwallgroup.common.entity.RouteDefinition;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +30,7 @@ public interface RouteService {
 
     ResponseEntity<Object> delete(String id);
 
-    ResponseEntity<RouteDefinition> route(String id);
+    ResponseEntity<org.springframework.cloud.gateway.route.RouteDefinition> route(String id);
 
     HashMap<String, Object> combinedfilters(String id);
 }

@@ -1,6 +1,5 @@
 package org.gwallgroup.gwall.service.impl;
 
-import com.google.common.collect.Maps;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.dubbo.config.annotation.Service;
@@ -98,7 +97,11 @@ public class RouteServiceImpl implements RouteService, ApplicationEventPublisher
     }
 
     @Override
-    public ResponseEntity<Object> save(String id, RouteDefinition route) {
+    public ResponseEntity<Object> save(String id, org.gwallgroup.common.entity.RouteDefinition route) {
+        RouteDefinition rd = new RouteDefinition();
+        rd.setId(route.getId());
+        rd.setOrder(route.getOrder());
+        rd.setUri(route.getUri());
         route.setId(id);
         log.debug("Saving route: " + route);
         return this.routeDefinitionWriter.save(Mono.just(route)).then(Mono.defer(() -> {
