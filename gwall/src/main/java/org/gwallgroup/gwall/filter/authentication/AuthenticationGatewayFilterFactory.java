@@ -5,6 +5,8 @@ import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.s
 import com.alibaba.nacos.common.util.Md5Utils;
 import org.apache.dubbo.config.annotation.Reference;
 import org.gwallgroup.common.dubbo.LoginStatusService;
+import org.gwallgroup.common.vo.LoginCheck;
+import org.gwallgroup.gwall.constants.Xheader;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpCookie;
@@ -28,16 +30,18 @@ public class AuthenticationGatewayFilterFactory extends AbstractGatewayFilterFac
   @Override
   public GatewayFilter apply(Config config) {
     return (exchange, chain) -> {
-      ServerHttpRequest req = exchange.getRequest();
-      String serviceType = getAttr("x-st", req, null);
-      String loginType = getAttr("x-lt", req, null);
-      String version = getAttr("x-v", req, null);
-      String tokenKey = getAttr("x-tk", req, "Authorization");
-      String token = getAttr(tokenKey, req, null);
-      int loginStatus = loginStatusService.isLogin(serviceType, loginType, version, tokenKey, token);
-      setResponseStatus(exchange, HttpStatus.resolve(loginStatus));
       System.out.println("AuthenticationGatewayFilterFactory");
-      if (loginStatus == 200) {
+      ServerHttpRequest req = exchange.getRequest();
+      String serviceType = getAttr(Xheader.X_ST, req, null);
+      String loginType = getAttr(Xheader.X_LT, req, null);
+      String version = getAttr(Xheader.X_V, req, null);
+      String tokenKey = getAttr(Xheader.X_TK, req, "Authorization");
+      String token = getAttr(tokenKey, req, null);
+      LoginCheck loginCheck = loginStatusService.isLogin(serviceType, loginType, version, tokenKey, token);
+      setResponseStatus(exchange, HttpStatus.resolve(loginCheck.getCode()));
+      req.getHeaders().add(Xheader.X_P, loginCheck.getPermissions());
+      req.getHeaders().add(Xheader.X_X, Xheader.AC);
+      if (loginCheck.getCode() == HttpStatus.OK.value()) {
         return chain.filter(exchange);
       } else {
         // 401 or else complete

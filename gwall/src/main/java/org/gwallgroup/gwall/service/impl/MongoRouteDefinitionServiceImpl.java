@@ -1,6 +1,5 @@
 package org.gwallgroup.gwall.service.impl;
 
-import com.mongodb.client.result.UpdateResult;
 import java.util.List;
 import javax.annotation.Resource;
 import org.gwallgroup.gwall.entity.mongo.MongoRouteDefinition;

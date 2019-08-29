@@ -24,6 +24,7 @@
     <module>authorization</module>
     <module>openapi</module>
     <module>oauth2</module>
+      <module>guard</module>
   </modules>
 
   <properties>

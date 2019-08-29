@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
  * 开发api，验证
  */
 @Component
+@Deprecated
 public class OpenApiGatewayFilterFactory extends AbstractGatewayFilterFactory<OpenApiGatewayFilterFactory.Config> {
 
   public OpenApiGatewayFilterFactory() {

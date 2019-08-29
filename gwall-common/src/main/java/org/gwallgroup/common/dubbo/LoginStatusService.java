@@ -1,5 +1,10 @@
 package org.gwallgroup.common.dubbo;
 
+import org.gwallgroup.common.vo.LoginCheck;
+
+/**
+ * 认证接口 认证模块实现 网关调用
+ */
 public interface LoginStatusService {
 
   /**
@@ -11,7 +16,7 @@ public interface LoginStatusService {
    * @param token token 的值
    * @return http code 200 succeed
    */
-  int isLogin(String serviceType, String loginType, String version, String tokenKey,
-      String token);
+  LoginCheck isLogin(String serviceType, String loginType, String version, String tokenKey,
+                     String token);
 
 }
