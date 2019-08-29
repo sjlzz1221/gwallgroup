@@ -1,6 +1,7 @@
 package org.gwallgroup.common.dubbo;
 
 import org.gwallgroup.common.entity.RouteDefinition;
+import org.gwallgroup.common.utils.ResponseBase;
 import org.springframework.http.ResponseEntity;
 
 import java.util.HashMap;
@@ -26,7 +27,7 @@ public interface RouteService {
 
     List<Map<String, Object>> routes();
 
-    ResponseEntity<Object> save(String id, RouteDefinition route);
+    boolean save(String id, RouteDefinition route);
 
     ResponseEntity<Object> delete(String id);
 

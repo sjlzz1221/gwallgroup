@@ -5,6 +5,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.dubbo.config.annotation.Reference;
 import org.gwallgroup.common.dubbo.RouteService;
 import org.gwallgroup.common.entity.RouteDefinition;
+import org.gwallgroup.common.utils.ResponseBase;
+import org.gwallgroup.common.utils.ResponseHelp;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,8 +49,8 @@ public class GatewayController {
 
     @PostMapping("/routes/{id}")
     @SuppressWarnings("unchecked")
-    public ResponseEntity<Object> save(@PathVariable String id, @RequestBody RouteDefinition route) {
-        return routeService.save(id, route);
+    public ResponseBase save(@PathVariable String id, @RequestBody RouteDefinition route) {
+        return ResponseHelp.prefabSimpleSucceedData(routeService.save(id, route));
     }
 
     @DeleteMapping("/routes/{id}")
@@ -57,7 +59,7 @@ public class GatewayController {
     }
 
     @GetMapping("/routes/{id}")
-    public ResponseEntity<RouteDefinition> route(@PathVariable String id) {
+    public ResponseEntity<org.springframework.cloud.gateway.route.RouteDefinition> route(@PathVariable String id) {
         return routeService.route(id);
     }
 

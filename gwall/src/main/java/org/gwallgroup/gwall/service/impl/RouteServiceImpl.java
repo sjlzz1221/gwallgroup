@@ -1,13 +1,18 @@
 package org.gwallgroup.gwall.service.impl;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.dubbo.config.annotation.Service;
 import org.gwallgroup.common.dubbo.RouteService;
+import org.gwallgroup.common.utils.ResponseBase;
+import org.gwallgroup.common.utils.ResponseHelp;
 import org.springframework.cloud.gateway.event.RefreshRoutesEvent;
+import org.springframework.cloud.gateway.filter.FilterDefinition;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.factory.GatewayFilterFactory;
+import org.springframework.cloud.gateway.handler.predicate.PredicateDefinition;
 import org.springframework.cloud.gateway.route.*;
 import org.springframework.cloud.gateway.support.NotFoundException;
 import org.springframework.context.ApplicationEventPublisher;
@@ -97,17 +102,46 @@ public class RouteServiceImpl implements RouteService, ApplicationEventPublisher
     }
 
     @Override
-    public ResponseEntity<Object> save(String id, org.gwallgroup.common.entity.RouteDefinition route) {
+    public boolean save(String id, org.gwallgroup.common.entity.RouteDefinition route) {
         RouteDefinition rd = new RouteDefinition();
         rd.setId(route.getId());
         rd.setOrder(route.getOrder());
-        rd.setUri(route.getUri());
+        String url = route.getUri().toString();
+        rd.setUri(URI.create(url));
         route.setId(id);
+        if (route.getFilters() != null) {
+            List<FilterDefinition> fds = Lists.newArrayList();
+            for (org.gwallgroup.common.entity.FilterDefinition item : route.getFilters()) {
+                FilterDefinition fd = new FilterDefinition();
+                fd.setName(item.getName());
+                fd.setArgs(item.getArgs());
+                fds.add(fd);
+            }
+            rd.setFilters(fds);
+        }
+        if (route.getPredicates() != null) {
+            List<PredicateDefinition> pds = Lists.newArrayList();
+            for (org.gwallgroup.common.entity.PredicateDefinition item : route.getPredicates()) {
+                PredicateDefinition pd = new PredicateDefinition();
+                pd.setName(item.getName());
+                pd.setArgs(item.getArgs());
+                pds.add(pd);
+            }
+            rd.setPredicates(pds);
+        }
+
         log.debug("Saving route: " + route);
-        return this.routeDefinitionWriter.save(Mono.just(route)).then(Mono.defer(() -> {
+        this.routeDefinitionWriter.save(Mono.just(rd)).then(Mono.defer(() -> {
             return Mono.just(ResponseEntity.created(URI.create("/routes/" + id)).build());
         })).block();
+        return true;
     }
+
+  public static void main(String[] args) {
+    //
+      URI uri = URI.create("lb://sdfsdf");
+      System.out.println(uri);
+  }
 
     @Override
     public ResponseEntity<Object> delete(String id) {
