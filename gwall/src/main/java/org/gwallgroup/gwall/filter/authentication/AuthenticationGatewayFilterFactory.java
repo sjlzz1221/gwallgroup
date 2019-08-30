@@ -3,11 +3,10 @@ package org.gwallgroup.gwall.filter.authentication;
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.setResponseStatus;
 
 import com.alibaba.nacos.common.util.Md5Utils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.dubbo.config.annotation.Reference;
+import org.gwallgroup.common.constants.Xheader;
 import org.gwallgroup.common.dubbo.LoginStatusService;
 import org.gwallgroup.common.entity.LoginCheck;
-import org.gwallgroup.gwall.constants.Xheader;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpCookie;
@@ -33,10 +32,10 @@ public class AuthenticationGatewayFilterFactory extends AbstractGatewayFilterFac
     return (exchange, chain) -> {
       System.out.println("AuthenticationGatewayFilterFactory");
       ServerHttpRequest req = exchange.getRequest();
-      String serviceType = getAttr(Xheader.X_ST, req, null);
-      String loginType = getAttr(Xheader.X_LT, req, null);
-      String version = getAttr(Xheader.X_V, req, null);
-      String tokenKey = getAttr(Xheader.X_TK, req, "Authorization");
+      String serviceType = getAttr(Xheader.X_ST, req, Xheader.DEFAULT);
+      String loginType = getAttr(Xheader.X_LT, req, Xheader.DEFAULT);
+      String version = getAttr(Xheader.X_V, req, Xheader.DEFAULT_VERSION);
+      String tokenKey = getAttr(Xheader.X_TK, req, Xheader.AUTHORIZATION);
       String token = getAttr(tokenKey, req, null);
       LoginCheck loginCheck = loginStatusService.isLogin(serviceType, loginType, version, tokenKey, token);
       setResponseStatus(exchange, HttpStatus.resolve(loginCheck.getCode()));

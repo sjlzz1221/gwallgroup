@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @SpringBootApplication
-@EnableDubbo(scanBasePackages = "org.gwallgroup.guard.service")
+@EnableDubbo
 @EnableDiscoveryClient
 public class Boot {
 

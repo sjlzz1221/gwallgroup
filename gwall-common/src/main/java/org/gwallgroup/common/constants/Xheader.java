@@ -1,4 +1,4 @@
-package org.gwallgroup.gwall.constants;
+package org.gwallgroup.common.constants;
 
 /**
  * @author jsen
@@ -12,7 +12,11 @@ public interface Xheader {
     String X_V = "x-v";
     String X_TK = "x-tk";
     String X_P = "x-p";
+
     String AUTHORIZATION = "Authorization";
     String AC = "ac";
+    String DEFAULT = "default";
+    String DEFAULT_VERSION = "0";
+    String DEFAULT_NULL = null;
 
 }

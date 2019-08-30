@@ -7,12 +7,7 @@ import org.gwallgroup.common.dubbo.RouteService;
 import org.gwallgroup.common.entity.GRouteDefinition;
 import org.gwallgroup.common.utils.ResponseBase;
 import org.gwallgroup.common.utils.ResponseHelp;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author jsen

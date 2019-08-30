@@ -25,6 +25,7 @@
     <module>openapi</module>
     <module>oauth2</module>
       <module>guard</module>
+      <module>gwall-common-web</module>
   </modules>
 
   <properties>

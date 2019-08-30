@@ -2,8 +2,8 @@ package org.gwallgroup.gwall.filter.authorization;
 
 import com.alibaba.nacos.common.util.Md5Utils;
 import org.apache.dubbo.config.annotation.Reference;
+import org.gwallgroup.common.constants.Xheader;
 import org.gwallgroup.common.dubbo.AccessService;
-import org.gwallgroup.gwall.constants.Xheader;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpCookie;
@@ -36,9 +36,9 @@ public class AuthorizationGatewayFilterFactory extends AbstractGatewayFilterFact
         setResponseStatus(exchange, HttpStatus.FORBIDDEN);
         return exchange.getResponse().setComplete();
       }
-      String serviceType = getAttr(Xheader.X_ST, req, null);
-      String version = getAttr(Xheader.X_V, req, null);
-      String permissions = getAttr(Xheader.X_P, req, null);
+      String serviceType = getAttr(Xheader.X_ST, req, Xheader.DEFAULT);
+      String version = getAttr(Xheader.X_V, req, Xheader.DEFAULT_VERSION);
+      String permissions = getAttr(Xheader.X_P, req, Xheader.DEFAULT_NULL);
       if (accessService.isAccess(serviceType, version, req.getPath().value(), permissions)) {
         setResponseStatus(exchange, HttpStatus.OK);
         return chain.filter(exchange);

@@ -1,4 +1,4 @@
-package org.gwallgroup.authentication.dto;
+package org.gwallgroup.authentication.entity.dto;
 
 import lombok.Data;
 
