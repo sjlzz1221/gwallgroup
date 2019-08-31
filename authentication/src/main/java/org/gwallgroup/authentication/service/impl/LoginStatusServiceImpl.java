@@ -1,18 +1,13 @@
 package org.gwallgroup.authentication.service.impl;
 
-import javax.annotation.Resource;
-
-import com.alibaba.fastjson.JSONObject;
 import org.apache.dubbo.config.annotation.Service;
+import org.gwallgroup.authentication.service.AuthenticationService;
+import org.gwallgroup.authentication.service.AuthenticationServiceManager;
 import org.gwallgroup.common.dubbo.LoginStatusService;
 import org.gwallgroup.common.entity.LoginCheck;
-import org.springframework.data.redis.core.ValueOperations;
 
 @Service
 public class LoginStatusServiceImpl implements LoginStatusService {
-
-  @Resource(name = "redisTemplate")
-  private ValueOperations<String, JSONObject> valueOperations;
 
   /**
    * 检查是否登入
@@ -29,12 +24,7 @@ public class LoginStatusServiceImpl implements LoginStatusService {
     if (token == null) {
       return new LoginCheck().setCode(401);
     }
-    // 验证用户是否登录
-    JSONObject exist = valueOperations.get(token);
-    if (exist != null) {
-      return new LoginCheck().setCode(200).setPermissions(exist.getString("x-p"));
-    } else {
-      return new LoginCheck().setCode(401);
-    }
+    AuthenticationService authenticationService = AuthenticationServiceManager.get(serviceType);
+    return authenticationService.check(tokenKey, token);
   }
 }

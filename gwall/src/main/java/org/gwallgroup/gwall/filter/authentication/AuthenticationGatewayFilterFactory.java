@@ -1,13 +1,10 @@
 package org.gwallgroup.gwall.filter.authentication;
 
-import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.setResponseStatus;
-
 import com.alibaba.nacos.common.util.Md5Utils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.dubbo.config.annotation.Reference;
+import org.gwallgroup.common.constants.Xheader;
 import org.gwallgroup.common.dubbo.LoginStatusService;
 import org.gwallgroup.common.entity.LoginCheck;
-import org.gwallgroup.gwall.constants.Xheader;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpCookie;
@@ -15,11 +12,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 
-/**
- * 验证用户登入，调用认证模块
- */
+import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.setResponseStatus;
+
+/** 验证用户登入，调用认证模块 */
 @Component
-public class AuthenticationGatewayFilterFactory extends AbstractGatewayFilterFactory<AuthenticationGatewayFilterFactory.Config> {
+public class AuthenticationGatewayFilterFactory
+    extends AbstractGatewayFilterFactory<AuthenticationGatewayFilterFactory.Config> {
 
   @Reference(check = false, lazy = true)
   private LoginStatusService loginStatusService;
@@ -33,17 +31,23 @@ public class AuthenticationGatewayFilterFactory extends AbstractGatewayFilterFac
     return (exchange, chain) -> {
       System.out.println("AuthenticationGatewayFilterFactory");
       ServerHttpRequest req = exchange.getRequest();
-      String serviceType = getAttr(Xheader.X_ST, req, null);
-      String loginType = getAttr(Xheader.X_LT, req, null);
-      String version = getAttr(Xheader.X_V, req, null);
-      String tokenKey = getAttr(Xheader.X_TK, req, "Authorization");
+      String serviceType = getAttr(Xheader.X_ST, req, Xheader.DEFAULT);
+      String loginType = getAttr(Xheader.X_LT, req, Xheader.DEFAULT);
+      String version = getAttr(Xheader.X_V, req, Xheader.DEFAULT_VERSION);
+      String tokenKey = getAttr(Xheader.X_TK, req, Xheader.AUTHORIZATION);
       String token = getAttr(tokenKey, req, null);
-      LoginCheck loginCheck = loginStatusService.isLogin(serviceType, loginType, version, tokenKey, token);
+      LoginCheck loginCheck =
+          loginStatusService.isLogin(serviceType, loginType, version, tokenKey, token);
       setResponseStatus(exchange, HttpStatus.resolve(loginCheck.getCode()));
       if (loginCheck.getCode() == HttpStatus.OK.value()) {
-        ServerHttpRequest request = exchange.getRequest().mutate()
-            .header(Xheader.X_P, loginCheck.getPermissions())
-            .header(Xheader.X_X, Xheader.AC).build();
+        ServerHttpRequest request =
+            exchange
+                .getRequest()
+                .mutate()
+                .header(Xheader.X_P, loginCheck.getPermissions())
+                .header(Xheader.X_X, Xheader.AC)
+                .header(Xheader.X_MAN, loginCheck.getXMan())
+                .build();
         return chain.filter(exchange.mutate().request(request).build());
       } else {
         // 401 or else complete
@@ -52,9 +56,7 @@ public class AuthenticationGatewayFilterFactory extends AbstractGatewayFilterFac
     };
   }
 
-  public static class Config {
-
-  }
+  public static class Config {}
 
   private String getAttr(String key, ServerHttpRequest request, String defaultValue) {
     if (key == null) {
@@ -77,5 +79,4 @@ public class AuthenticationGatewayFilterFactory extends AbstractGatewayFilterFac
     }
     return defaultValue;
   }
-
 }
