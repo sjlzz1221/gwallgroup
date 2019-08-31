@@ -21,4 +21,6 @@ public class LoginCheck implements Serializable {
      * permissions, split with \0
      */
     private String permissions;
+
+    private String xMan;
 }

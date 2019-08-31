@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.io.Serializable;
 
 /**
  * @author jsen
@@ -16,7 +17,8 @@ import javax.persistence.Id;
 @Entity(name = "gwall_account")
 @Data
 @Accessors(chain = true)
-public class GwallAccount {
+public class GwallAccount implements Serializable {
+    private static final long serialVersionUID = 4290774380558885855L;
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
