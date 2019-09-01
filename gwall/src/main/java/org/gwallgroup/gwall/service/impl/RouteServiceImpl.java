@@ -1,31 +1,26 @@
 package org.gwallgroup.gwall.service.impl;
 
-import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.dubbo.config.annotation.Service;
 import org.gwallgroup.common.dubbo.RouteService;
-import org.gwallgroup.common.entity.GFilterDefinition;
-import org.gwallgroup.common.entity.GPredicateDefinition;
 import org.gwallgroup.common.entity.GRouteDefinition;
+import org.gwallgroup.gwall.MongoRouteDefinitionRepository;
+import org.gwallgroup.gwall.entity.mongo.MongoRouteDefinition;
+import org.gwallgroup.gwall.service.MongoRouteDefinitionService;
 import org.springframework.cloud.gateway.event.RefreshRoutesEvent;
-import org.springframework.cloud.gateway.filter.FilterDefinition;
-import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.factory.GatewayFilterFactory;
-import org.springframework.cloud.gateway.handler.predicate.PredicateDefinition;
-import org.springframework.cloud.gateway.route.*;
-import org.springframework.cloud.gateway.support.NotFoundException;
+import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.core.Ordered;
-import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
-import javax.annotation.Resource;
-import java.net.URI;
-import java.util.*;
 
 /**
  * @author jsen
@@ -34,149 +29,82 @@ import java.util.*;
  */
 @Service
 public class RouteServiceImpl implements RouteService, ApplicationEventPublisherAware {
-    private static final Log log = LogFactory.getLog(RouteServiceImpl.class);
-    @Resource
-    private RouteDefinitionLocator routeDefinitionLocator;
-    @Resource
-    private List<GlobalFilter> globalFilters;
-    @Resource
-    private List<GatewayFilterFactory> gatewayFilters;
-    @Resource
-    private RouteDefinitionWriter routeDefinitionWriter;
-    @Resource
-    private RouteLocator routeLocator;
-    private ApplicationEventPublisher publisher;
 
-    @Override
-    public void refresh() {
-        this.publisher.publishEvent(new RefreshRoutesEvent(this));
+  private static final Log log = LogFactory.getLog(RouteServiceImpl.class);
+  @Resource private List<GlobalFilter> globalFilters;
+  @Resource private List<GatewayFilterFactory> gatewayFilters;
+  @Resource private MongoRouteDefinitionRepository routeDefinitionWriter;
+  @Resource private MongoRouteDefinitionService mongoRouteDefinitionService;
+  @Resource private RouteLocator routeLocator;
+  private ApplicationEventPublisher publisher;
+
+  @Override
+  public void refresh() {
+    routeDefinitionWriter.refresh();
+    this.publisher.publishEvent(new RefreshRoutesEvent(this));
+  }
+
+  @Override
+  public HashMap<String, Object> globalfilters() {
+    return this.getNamesToOrders(this.globalFilters);
+  }
+
+  @Override
+  public HashMap<String, Object> routefilers() {
+    return this.getNamesToOrders(this.gatewayFilters);
+  }
+
+  @Override
+  public Collection<GRouteDefinition> routes() {
+    return mongoRouteDefinitionService.queryAll(null).stream()
+        .map(MongoRouteDefinition::toGRouteDefinition)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public Collection<GRouteDefinition> save(GRouteDefinition route) {
+    MongoRouteDefinition rd = MongoRouteDefinition.fromGRouteDefinition(route);
+    log.debug("Saving route: " + rd);
+    this.routeDefinitionWriter.save(rd);
+    return routes();
+  }
+
+  @Override
+  public Collection<GRouteDefinition> delete(String id) {
+    this.routeDefinitionWriter.delete(id);
+    return routes();
+  }
+
+  @Override
+  public GRouteDefinition route(String id) {
+    return MongoRouteDefinition.toGRouteDefinition(mongoRouteDefinitionService.findOne(id));
+  }
+
+  @Override
+  public HashMap<String, Object> combinedfilters(String id) {
+    return this.routeLocator
+        .getRoutes()
+        .filter((route) -> route.getId().equals(id))
+        .reduce(new HashMap<String, Object>(), this::putItem)
+        .block();
+  }
+
+  @Override
+  public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+    this.publisher = applicationEventPublisher;
+  }
+
+  private <T> HashMap<String, Object> getNamesToOrders(List<T> list) {
+    return Flux.fromIterable(list).reduce(new HashMap<String, Object>(), this::putItem).block();
+  }
+
+  private HashMap<String, Object> putItem(HashMap<String, Object> map, Object o) {
+    Integer order = null;
+    if (o instanceof Ordered) {
+      order = ((Ordered) o).getOrder();
     }
 
-    @Override
-    public HashMap<String, Object> globalfilters() {
-        return this.getNamesToOrders(this.globalFilters);
-    }
-
-    @Override
-    public HashMap<String, Object> routefilers() {
-        return this.getNamesToOrders(this.gatewayFilters);
-    }
-
-    @Override
-    public List<Map<String, Object>> routes() {
-        Mono<Map<String, RouteDefinition>> routeDefs = this.routeDefinitionLocator.getRouteDefinitions().collectMap(RouteDefinition::getId);
-        Mono<List<Route>> routes = this.routeLocator.getRoutes().collectList();
-        return Mono.zip(routeDefs, routes).map((tuple) -> {
-            Map<String, RouteDefinition> defs = (Map)tuple.getT1();
-            List<Route> routeList = (List)tuple.getT2();
-            List<Map<String, Object>> allRoutes = new ArrayList();
-            routeList.forEach((route) -> {
-                HashMap<String, Object> r = new HashMap();
-                r.put("route_id", route.getId());
-                r.put("order", route.getOrder());
-                if (defs.containsKey(route.getId())) {
-                    r.put("route_definition", new GRouteDefinition(defs.get(route.getId())));
-                } else {
-                    HashMap<String, Object> obj = new HashMap();
-                    obj.put("predicate", route.getPredicate().toString());
-                    if (!route.getFilters().isEmpty()) {
-                        ArrayList<String> filters = new ArrayList();
-                        Iterator var6 = route.getFilters().iterator();
-
-                        while(var6.hasNext()) {
-                            GatewayFilter filter = (GatewayFilter)var6.next();
-                            filters.add(filter.toString());
-                        }
-
-                        obj.put("filters", filters);
-                    }
-
-                    if (!obj.isEmpty()) {
-                        r.put("route_object", obj);
-                    }
-                }
-
-                allRoutes.add(r);
-            });
-            return allRoutes;
-        }).block();
-    }
-
-    @Override
-    public boolean save(String id, GRouteDefinition route) {
-        RouteDefinition rd = new RouteDefinition();
-        rd.setId(id);
-        rd.setOrder(route.getOrder());
-        String url = route.getUri().toString();
-        rd.setUri(URI.create(url));
-        if (route.getFilters() != null) {
-            List<FilterDefinition> fds = Lists.newArrayList();
-            for (GFilterDefinition item : route.getFilters()) {
-                FilterDefinition fd = new FilterDefinition();
-                fd.setName(item.getName());
-                fd.setArgs(item.getArgs());
-                fds.add(fd);
-            }
-            rd.setFilters(fds);
-        }
-        if (route.getPredicates() != null) {
-            List<PredicateDefinition> pds = Lists.newArrayList();
-            for (GPredicateDefinition item : route.getPredicates()) {
-                PredicateDefinition pd = new PredicateDefinition();
-                pd.setName(item.getName());
-                pd.setArgs(item.getArgs());
-                pds.add(pd);
-            }
-            rd.setPredicates(pds);
-        }
-        log.debug("Saving route: " + rd);
-        this.routeDefinitionWriter.save(Mono.just(rd)).then(Mono.defer(() -> {
-            return Mono.just(ResponseEntity.created(URI.create("/routes/" + id)).build());
-        })).block();
-        return true;
-    }
-
-    @Override
-    public boolean delete(String id) {
-        this.routeDefinitionWriter.delete(Mono.just(id)).block();
-        return true;
-    }
-
-    @Override
-    public GRouteDefinition route(String id) {
-        return this.routeDefinitionLocator.getRouteDefinitions().filter((route) -> {
-            return route.getId().equals(id);
-        }).singleOrEmpty().map(item -> {
-            if (item != null) {
-                return new GRouteDefinition(item);
-            }
-            return null;
-        }).block();
-    }
-
-    @Override
-    public HashMap<String, Object> combinedfilters(String id) {
-        return this.routeLocator.getRoutes().filter((route) -> {
-            return route.getId().equals(id);
-        }).reduce(new HashMap<String, Object>(), this::putItem).block();
-    }
-
-    @Override
-    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
-        this.publisher = applicationEventPublisher;
-    }
-
-    private <T> HashMap<String, Object> getNamesToOrders(List<T> list) {
-        return Flux.fromIterable(list).reduce(new HashMap<String, Object>(), this::putItem).block();
-    }
-
-    private HashMap<String, Object> putItem(HashMap<String, Object> map, Object o) {
-        Integer order = null;
-        if (o instanceof Ordered) {
-            order = ((Ordered)o).getOrder();
-        }
-
-        map.put(o.toString(), order);
-        return map;
-    }
+    map.put(o.toString(), order);
+    return map;
+  }
 }

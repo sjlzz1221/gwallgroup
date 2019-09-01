@@ -8,6 +8,7 @@ public interface AuthenticationService {
 
   /**
    * 验证登录
+   *
    * @param tokenKey token key
    * @param token token
    * @return check result
@@ -16,9 +17,9 @@ public interface AuthenticationService {
 
   /**
    * 使用token 登录
+   *
    * @param tokenLoginDto token dto
    * @return res
    */
   ResponseBase login(TokenLoginDto tokenLoginDto);
-
 }

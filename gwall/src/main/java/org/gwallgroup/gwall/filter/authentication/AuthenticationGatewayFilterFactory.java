@@ -1,18 +1,18 @@
 package org.gwallgroup.gwall.filter.authentication;
 
+import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.setResponseStatus;
+
 import com.alibaba.nacos.common.util.Md5Utils;
 import org.apache.dubbo.config.annotation.Reference;
-import org.gwallgroup.common.constants.Xheader;
 import org.gwallgroup.common.dubbo.LoginStatusService;
 import org.gwallgroup.common.entity.LoginCheck;
+import org.gwallgroup.common.web.constants.Xheader;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
-
-import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.setResponseStatus;
 
 /** 验证用户登入，调用认证模块 */
 @Component

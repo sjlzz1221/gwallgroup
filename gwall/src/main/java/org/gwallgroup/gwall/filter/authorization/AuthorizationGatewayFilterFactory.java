@@ -1,9 +1,11 @@
 package org.gwallgroup.gwall.filter.authorization;
 
+import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.setResponseStatus;
+
 import com.alibaba.nacos.common.util.Md5Utils;
 import org.apache.dubbo.config.annotation.Reference;
-import org.gwallgroup.common.constants.Xheader;
 import org.gwallgroup.common.dubbo.AccessService;
+import org.gwallgroup.common.web.constants.Xheader;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpCookie;
@@ -11,13 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 
-import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.setResponseStatus;
-
-/**
- * 验证用户Api权限，调用授权模块
- */
+/** 验证用户Api权限，调用授权模块 */
 @Component
-public class AuthorizationGatewayFilterFactory extends AbstractGatewayFilterFactory<AuthorizationGatewayFilterFactory.Config> {
+public class AuthorizationGatewayFilterFactory
+    extends AbstractGatewayFilterFactory<AuthorizationGatewayFilterFactory.Config> {
 
   @Reference(check = false, lazy = true)
   private AccessService accessService;
@@ -49,9 +48,7 @@ public class AuthorizationGatewayFilterFactory extends AbstractGatewayFilterFact
     };
   }
 
-  public static class Config {
-
-  }
+  public static class Config {}
 
   private String getAttr(String key, ServerHttpRequest request, String defaultValue) {
     if (key == null) {
@@ -74,5 +71,4 @@ public class AuthorizationGatewayFilterFactory extends AbstractGatewayFilterFact
     }
     return defaultValue;
   }
-
 }

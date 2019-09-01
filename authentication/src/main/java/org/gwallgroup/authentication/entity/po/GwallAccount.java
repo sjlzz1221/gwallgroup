@@ -1,13 +1,12 @@
 package org.gwallgroup.authentication.entity.po;
 
-import lombok.Data;
-import lombok.experimental.Accessors;
-
+import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import java.io.Serializable;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * @author jsen
@@ -18,17 +17,13 @@ import java.io.Serializable;
 @Data
 @Accessors(chain = true)
 public class GwallAccount implements Serializable {
-    private static final long serialVersionUID = 4290774380558885855L;
-    @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    private Long id;
-    /**
-     * 登录账户
-     */
-    private String name;
-    /**
-     * 登录密码
-     */
-    private String password;
+  private static final long serialVersionUID = 4290774380558885855L;
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Long id;
+  /** 登录账户 */
+  private String name;
+  /** 登录密码 */
+  private String password;
 }

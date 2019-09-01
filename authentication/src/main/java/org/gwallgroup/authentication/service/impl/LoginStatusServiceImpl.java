@@ -11,6 +11,7 @@ public class LoginStatusServiceImpl implements LoginStatusService {
 
   /**
    * 检查是否登入
+   *
    * @param serviceType 服务类型（登录的服务，一般指不同的用户数据库）
    * @param loginType 登入类型（手机登录，账号登录等）
    * @param version token 版本 （1，2，3 etc.）
@@ -19,8 +20,8 @@ public class LoginStatusServiceImpl implements LoginStatusService {
    * @return http code 200 succeed
    */
   @Override
-  public LoginCheck isLogin(String serviceType, String loginType, String version, String tokenKey,
-                            String token) {
+  public LoginCheck isLogin(
+      String serviceType, String loginType, String version, String tokenKey, String token) {
     if (token == null) {
       return new LoginCheck().setCode(401);
     }
