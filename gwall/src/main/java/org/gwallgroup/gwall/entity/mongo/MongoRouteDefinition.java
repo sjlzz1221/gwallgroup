@@ -17,6 +17,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.lang.Nullable;
 
+/** @author jsen */
 @Document(collection = "route")
 @Data
 public class MongoRouteDefinition extends RouteDefinition {

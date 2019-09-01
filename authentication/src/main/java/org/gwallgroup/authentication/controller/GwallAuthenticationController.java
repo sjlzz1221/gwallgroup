@@ -1,16 +1,15 @@
 package org.gwallgroup.authentication.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.gwallgroup.authentication.entity.dto.TokenLoginDto;
-import org.gwallgroup.authentication.service.AuthenticationService;
-import org.gwallgroup.authentication.service.AuthenticationServiceManager;
+import org.gwallgroup.authentication.service.GwallAuthenticationService;
 import org.gwallgroup.common.utils.ResponseBase;
 import org.gwallgroup.common.utils.ResponseHelp;
 import org.gwallgroup.common.web.constants.Xheader;
 import org.gwallgroup.common.web.context.ContextUser;
-import org.gwallgroup.common.web.context.annotation.AuthenticationPrincipal;
 import org.gwallgroup.common.web.utils.help.AttributeHelp;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 登录控制器 通用口令登录 验证登录
+ * 登录控制器 通用口令登录 验证登录 gwall 默认实现登录接口
  *
  * @author jsen
  */
@@ -29,7 +28,10 @@ import org.springframework.web.bind.annotation.RestController;
     value = "/api/gateway/authentication",
     produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
 @Slf4j
-public class AuthenticationController {
+public class GwallAuthenticationController {
+
+  @Resource
+  private GwallAuthenticationService gwallAuthenticationService;
 
   @PostMapping("/pub/token")
   public ResponseBase tokenLogin(
@@ -38,8 +40,7 @@ public class AuthenticationController {
     String loginType = AttributeHelp.getHeader(Xheader.X_LT, request, Xheader.DEFAULT);
     String version = AttributeHelp.getHeader(Xheader.X_V, request, Xheader.DEFAULT_VERSION);
     log.debug("{} {} {}", serviceType, loginType, version);
-    AuthenticationService authenticationService = AuthenticationServiceManager.get(serviceType);
-    return authenticationService.login(tokenLoginDto);
+    return gwallAuthenticationService.login(tokenLoginDto);
   }
 
   @GetMapping("/100/currentUser")

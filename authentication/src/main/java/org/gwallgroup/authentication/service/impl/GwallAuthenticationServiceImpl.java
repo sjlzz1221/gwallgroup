@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.common.util.Md5Utils;
 import java.nio.charset.Charset;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -13,22 +12,20 @@ import javax.servlet.http.HttpServletResponse;
 import org.gwallgroup.authentication.entity.dto.TokenLoginDto;
 import org.gwallgroup.authentication.entity.po.GwallAccount;
 import org.gwallgroup.authentication.repository.GwallAccountRepository;
-import org.gwallgroup.authentication.service.AuthenticationService;
-import org.gwallgroup.authentication.service.AuthenticationServiceManager;
+import org.gwallgroup.authentication.service.GwallAuthenticationService;
 import org.gwallgroup.authentication.utils.SessionUtil;
-import org.gwallgroup.common.entity.LoginCheck;
 import org.gwallgroup.common.utils.ResponseBase;
 import org.gwallgroup.common.utils.ResponseHelp;
 import org.gwallgroup.common.web.constants.Xheader;
+import org.gwallgroup.common.web.utils.help.AttributeHelp;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-/** @author jsen */
-@Service("AuthenticationServiceDefault")
-public class AuthenticationServiceDefaultImpl implements AuthenticationService {
+@Service
+public class GwallAuthenticationServiceImpl implements GwallAuthenticationService {
 
   @Resource
   @Qualifier("redisSessionTemplate")
@@ -39,24 +36,6 @@ public class AuthenticationServiceDefaultImpl implements AuthenticationService {
   private RedisTemplate<Long, String> loginOperations;
 
   @Resource private GwallAccountRepository gwallAccountRepository;
-
-  @PostConstruct
-  public void init() {
-    AuthenticationServiceManager.register(Xheader.DEFAULT, this);
-  }
-
-  @Override
-  public LoginCheck check(String tokenKey, String token) {
-    JSONObject exist = sessionOperations.boundValueOps(token).get();
-    if (exist != null) {
-      return new LoginCheck()
-          .setCode(200)
-          .setPermissions(exist.getString(Xheader.X_P))
-          .setXMan(exist.getString(Xheader.X_MAN));
-    } else {
-      return new LoginCheck().setCode(401);
-    }
-  }
 
   @Override
   public ResponseBase login(TokenLoginDto tokenLoginDto) {
@@ -69,19 +48,25 @@ public class AuthenticationServiceDefaultImpl implements AuthenticationService {
           sessionOperations.delete(oldSession);
         }
         String newSession = SessionUtil.getSessionId();
-        JSONObject domain = new JSONObject();
-        domain.put(Xheader.X_P, "");
-        domain.put(Xheader.X_MAN, JSON.toJSON(exist));
-        loginOperations.boundValueOps(exist.getId()).set(newSession, 6, TimeUnit.HOURS);
-        sessionOperations.boundValueOps(newSession).set(domain, 6, TimeUnit.HOURS);
+//        JSONObject domain = new JSONObject();
+//        domain.put(Xheader.X_P, "");
+//        domain.put(Xheader.X_MAN, JSON.toJSON(exist));
+//        loginOperations.boundValueOps(exist.getId()).set(newSession, 6, TimeUnit.HOURS);
+//        sessionOperations.boundValueOps(newSession).set(domain, 6, TimeUnit.HOURS);
+        HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
+        String tokenKey = AttributeHelp.getHeader(Xheader.X_TK, request, Xheader.AUTHORIZATION);
+
         HttpServletResponse response = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getResponse();
         if (response != null) {
-          Cookie cookie = new Cookie(Xheader.AUTHORIZATION, newSession);
+          Cookie cookie = new Cookie(tokenKey, newSession);
           cookie.setPath("/");
           response.addCookie(cookie);
+          response.setHeader(tokenKey, newSession);
+          response.setHeader(Xheader.X_P, "");
+          response.setHeader(Xheader.X_MAN, JSON.toJSONString(exist));
         }
         return ResponseHelp.simpleSucceed()
-            .add(Xheader.AUTHORIZATION, newSession)
+            .add(tokenKey, newSession)
             .add("currentAuthority", "admin");
       } else {
         return ResponseHelp.prefabSimpleFailed("password authentication failed");

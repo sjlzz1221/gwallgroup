@@ -17,4 +17,13 @@ public interface LoginStatusService {
    */
   LoginCheck isLogin(
       String serviceType, String loginType, String version, String tokenKey, String token);
+
+  /**
+   * 登录接口登录成功后添加session
+   * @param token t
+   * @param permission p
+   * @param man m
+   * @return r
+   */
+  boolean addSession(String token, String permission, String man);
 }

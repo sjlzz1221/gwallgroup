@@ -1,10 +1,8 @@
 import {
   Button,
-  DatePicker,
   Form,
   Input,
   Modal,
-  Radio,
   Select,
   Steps,
   Checkbox,
@@ -22,6 +20,7 @@ export interface FormValsType extends Partial<RouteDefinition> {
   stripPrefix?: number;
   authentication?: boolean;
   authorization?: boolean;
+  loginFacade?: boolean;
 }
 
 export interface UpdateFormProps extends FormComponentProps {
@@ -64,7 +63,8 @@ class UpdateForm extends Component<UpdateFormProps, UpdateFormState> {
     let path = '',
       stripPrefix: number = 0;
     let authentication = false,
-      authorization = false;
+      authorization = false,
+      loginFacade = false;
     predicates.forEach(item => {
       if (item.startsWith('Path=')) {
         path = item.substring(5);
@@ -77,6 +77,8 @@ class UpdateForm extends Component<UpdateFormProps, UpdateFormState> {
         authentication = true;
       } else if (item.startsWith('Authorization')) {
         authorization = true;
+      } else if (item.startsWith('LoginFacade')) {
+        loginFacade = true;
       }
     });
     this.state = {
@@ -88,6 +90,7 @@ class UpdateForm extends Component<UpdateFormProps, UpdateFormState> {
         stripPrefix,
         authentication,
         authorization,
+        loginFacade,
         status,
       },
       currentStep: 0,
@@ -217,6 +220,12 @@ class UpdateForm extends Component<UpdateFormProps, UpdateFormState> {
             valuePropName: 'checked',
             initialValue: formVals.authorization,
           })(<Checkbox disabled>用户授权</Checkbox>)}
+        </FormItem>,
+        <FormItem key="loginFacade" {...this.formLayout} label="Authorization">
+          {form.getFieldDecorator('loginFacade', {
+            valuePropName: 'checked',
+            initialValue: formVals.loginFacade,
+          })(<Checkbox>登入接口</Checkbox>)}
         </FormItem>,
       ];
     }

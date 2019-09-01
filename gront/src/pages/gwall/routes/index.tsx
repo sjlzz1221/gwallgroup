@@ -26,6 +26,7 @@ import UpdateForm, { FormValsType } from './components/UpdateForm';
 import { RouteDefinition, Params } from './data.d';
 
 import styles from './style.less';
+import { PaginationConfig } from 'antd/lib/table';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -136,7 +137,7 @@ class TableList extends Component<TableListProps, TableListState> {
   }
 
   handleStandardTableChange = (
-    pagaination,
+    pagaination: PaginationConfig,
     filtersArg: Record<keyof RouteDefinition, string[]>,
     sorter: SorterResult<RouteDefinition>,
   ) => {
@@ -247,10 +248,11 @@ class TableList extends Component<TableListProps, TableListState> {
       desc,
       path,
       status,
-      uri,
+      uri = '',
       order = 0,
       authentication = false,
       authorization = false,
+      loginFacade = false,
       stripPrefix = 0,
     } = fields;
     const filters = [];
@@ -263,6 +265,10 @@ class TableList extends Component<TableListProps, TableListState> {
     if (authorization) {
       filters.push('Authorization');
     }
+    if (loginFacade) {
+      filters.push('LoginFacade');
+    }
+    
     let u = uri;
     try {
       new URL(uri);
