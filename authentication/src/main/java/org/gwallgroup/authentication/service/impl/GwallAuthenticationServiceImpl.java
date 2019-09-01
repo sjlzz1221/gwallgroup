@@ -61,6 +61,9 @@ public class GwallAuthenticationServiceImpl implements GwallAuthenticationServic
           Cookie cookie = new Cookie(tokenKey, newSession);
           cookie.setPath("/");
           response.addCookie(cookie);
+          Cookie service = new Cookie(Xheader.X_ST, "gwall");
+          service.setPath("/");
+          response.addCookie(service);
           response.setHeader(tokenKey, newSession);
           response.setHeader(Xheader.X_P, "");
           response.setHeader(Xheader.X_MAN, JSON.toJSONString(exist));

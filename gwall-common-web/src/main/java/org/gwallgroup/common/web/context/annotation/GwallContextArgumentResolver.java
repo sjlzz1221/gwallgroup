@@ -11,7 +11,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-public class AuthenticationPrincipalArgumentResolver implements HandlerMethodArgumentResolver {
+public class GwallContextArgumentResolver implements HandlerMethodArgumentResolver {
 
   /*
    * (non-Javadoc)
@@ -21,7 +21,7 @@ public class AuthenticationPrincipalArgumentResolver implements HandlerMethodArg
    */
   @Override
   public boolean supportsParameter(@NotNull MethodParameter parameter) {
-    return findMethodAnnotation(AuthenticationPrincipal.class, parameter) != null
+    return findMethodAnnotation(InjectContextUser.class, parameter) != null
         || parameter.getParameterType().isAssignableFrom(ContextUser.class);
   }
 

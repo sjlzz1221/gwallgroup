@@ -5,7 +5,10 @@ import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.ClassUtils;
 
-public class SpringWebMvcImportSelector implements ImportSelector {
+/**
+ * @author jsen
+ */
+public class GwallContextImportSelector implements ImportSelector {
 
   @Override
   public String[] selectImports(@NotNull AnnotationMetadata importingClassMetadata) {
@@ -13,7 +16,7 @@ public class SpringWebMvcImportSelector implements ImportSelector {
         ClassUtils.isPresent(
             "org.springframework.web.servlet.DispatcherServlet", getClass().getClassLoader());
     return webmvcPresent
-        ? new String[] {"org.gwallgroup.common.web.context.config.WebMvcSecurityConfiguration"}
+        ? new String[] {"org.gwallgroup.common.web.context.config.GwallContextConfiguration"}
         : new String[] {};
   }
 }
