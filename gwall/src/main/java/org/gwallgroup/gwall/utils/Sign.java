@@ -3,13 +3,12 @@ package org.gwallgroup.gwall.utils;
 import com.alibaba.nacos.client.utils.StringUtils;
 import com.alibaba.nacos.common.util.Md5Utils;
 import com.google.common.collect.Maps;
-import org.gwallgroup.common.dubbo.SignService;
-import org.springframework.util.MultiValueMap;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import org.gwallgroup.common.dubbo.SignService;
+import org.springframework.util.MultiValueMap;
 
 /**
  * @author jsen

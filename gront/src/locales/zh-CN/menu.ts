@@ -1,4 +1,7 @@
 export default {
+  'menu.gwall': '网关',
+  'menu.gwall.routes': '路由配置',
+
   'menu.welcome': '欢迎',
   'menu.more-blocks': '更多区块',
   'menu.home': '首页',

@@ -5,6 +5,4 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Service;
 
 @Service
-public interface MongoRouteDefinitionMapper extends MongoRepository<MongoRouteDefinition, String> {
-
-}
+public interface MongoRouteDefinitionMapper extends MongoRepository<MongoRouteDefinition, String> {}

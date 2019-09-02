@@ -6,7 +6,7 @@ function getFakeCaptcha(req: Request, res: Response) {
 // 代码中会兼容本地 service mock 以及部署站点的静态数据
 export default {
   // 支持值为 Object 和 Array
-  'GET /api/currentUser': {
+  'GET /gateway/authentication/currentUser': {
     name: 'Serati Ma',
     avatar: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
     userid: '00000001',
@@ -77,27 +77,27 @@ export default {
       address: 'Sidney No. 1 Lake Park',
     },
   ],
-  'POST /api/login/account': (req: Request, res: Response) => {
-    const { password, userName, type } = req.body;
-    if (password === 'ant.design' && userName === 'admin') {
+  'POST /gateway/authentication/token': (req: Request, res: Response) => {
+    const { principal, token, loginType } = req.body;
+    if (token === 'ant.design' && principal === 'admin') {
       res.send({
-        status: 'ok',
-        type,
+        code: 0,
+        loginType,
         currentAuthority: 'admin',
       });
       return;
     }
-    if (password === 'ant.design' && userName === 'user') {
+    if (token === 'ant.design' && principal === 'user') {
       res.send({
-        status: 'ok',
-        type,
+        code: 0,
+        loginType,
         currentAuthority: 'user',
       });
       return;
     }
     res.send({
-      status: 'error',
-      type,
+      code: 1,
+      loginType,
       currentAuthority: 'guest',
     });
   },

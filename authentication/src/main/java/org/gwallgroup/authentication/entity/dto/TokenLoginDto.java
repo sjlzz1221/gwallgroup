@@ -2,9 +2,7 @@ package org.gwallgroup.authentication.entity.dto;
 
 import lombok.Data;
 
-/**
- * 用户token登录 dto
- */
+/** 用户token登录 dto */
 @Data
 public class TokenLoginDto {
 
@@ -14,5 +12,4 @@ public class TokenLoginDto {
 
   private String principal;
   private String token;
-
 }

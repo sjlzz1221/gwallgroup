@@ -8,8 +8,8 @@ import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
 
 export interface StateType {
-  status?: 'ok' | 'error';
-  type?: string;
+  code?: 0 | 1;
+  loginType?: string;
   currentAuthority?: 'user' | 'guest' | 'admin';
 }
 
@@ -30,7 +30,7 @@ const Model: LoginModelType = {
   namespace: 'login',
 
   state: {
-    status: undefined,
+    code: undefined,
   },
 
   effects: {
@@ -40,8 +40,9 @@ const Model: LoginModelType = {
         type: 'changeLoginStatus',
         payload: response,
       });
+      console.log(response);
       // Login successfully
-      if (response.status === 'ok') {
+      if (response.code === 0) {
         const urlParams = new URL(window.location.href);
         const params = getPageQuery();
         let { redirect } = params as { redirect: string };
@@ -85,8 +86,8 @@ const Model: LoginModelType = {
       setAuthority(payload.currentAuthority);
       return {
         ...state,
-        status: payload.status,
-        type: payload.type,
+        code: payload.code,
+        loginType: payload.loginType,
       };
     },
   },

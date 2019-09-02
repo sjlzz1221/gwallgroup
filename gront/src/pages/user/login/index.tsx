@@ -43,14 +43,14 @@ class Login extends Component<LoginProps, LoginState> {
   };
 
   handleSubmit = (err: unknown, values: LoginParamsType) => {
-    const { type } = this.state;
+    const { type: loginType } = this.state;
     if (!err) {
       const { dispatch } = this.props;
       dispatch({
         type: 'login/login',
         payload: {
           ...values,
-          type,
+          loginType,
         },
       });
     }
@@ -60,40 +60,13 @@ class Login extends Component<LoginProps, LoginState> {
     this.setState({ type });
   };
 
-  onGetCaptcha = () =>
-    new Promise<boolean>((resolve, reject) => {
-      if (!this.loginForm) {
-        return;
-      }
-      this.loginForm.validateFields(
-        ['mobile'],
-        {},
-        async (err: unknown, values: LoginParamsType) => {
-          if (err) {
-            reject(err);
-          } else {
-            const { dispatch } = this.props;
-            try {
-              const success = await ((dispatch({
-                type: 'login/getCaptcha',
-                payload: values.mobile,
-              }) as unknown) as Promise<unknown>);
-              resolve(!!success);
-            } catch (error) {
-              reject(error);
-            }
-          }
-        },
-      );
-    });
-
   renderMessage = (content: string) => (
     <Alert style={{ marginBottom: 24 }} message={content} type="error" showIcon />
   );
 
   render() {
     const { userLogin, submitting } = this.props;
-    const { status, type: loginType } = userLogin;
+    const { code, loginType } = userLogin;
     const { type, autoLogin } = this.state;
     return (
       <div className={styles.main}>
@@ -106,14 +79,14 @@ class Login extends Component<LoginProps, LoginState> {
           }}
         >
           <Tab key="account" tab={formatMessage({ id: 'user-login.login.tab-login-credentials' })}>
-            {status === 'error' &&
+            {code !== 0 &&
               loginType === 'account' &&
               !submitting &&
               this.renderMessage(
                 formatMessage({ id: 'user-login.login.message-invalid-credentials' }),
               )}
             <UserName
-              name="userName"
+              name="principal"
               placeholder={`${formatMessage({ id: 'user-login.login.userName' })}: admin or user`}
               rules={[
                 {
@@ -123,7 +96,7 @@ class Login extends Component<LoginProps, LoginState> {
               ]}
             />
             <Password
-              name="password"
+              name="token"
               placeholder={`${formatMessage({ id: 'user-login.login.password' })}: ant.design`}
               rules={[
                 {

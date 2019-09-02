@@ -1,8 +1,8 @@
 package org.gwallgroup.gwall.filter.authorization;
 
-import com.alibaba.nacos.common.util.Md5Utils;
+import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.setResponseStatus;
+
 import org.apache.dubbo.config.annotation.Reference;
-import org.gwallgroup.common.dubbo.AccessService;
 import org.gwallgroup.common.dubbo.SignService;
 import org.gwallgroup.gwall.utils.Sign;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -11,14 +11,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 
-import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.setResponseStatus;
-
 /**
  * 开发api，验证
+ *
  * @author jsen
  */
 @Component
-public class SignGatewayFilterFactory extends AbstractGatewayFilterFactory<SignGatewayFilterFactory.Config> {
+public class SignGatewayFilterFactory
+    extends AbstractGatewayFilterFactory<SignGatewayFilterFactory.Config> {
 
   @Reference(check = false, lazy = true)
   private SignService signService;
@@ -41,8 +41,5 @@ public class SignGatewayFilterFactory extends AbstractGatewayFilterFactory<SignG
     };
   }
 
-  public static class Config {
-
-  }
-
+  public static class Config {}
 }

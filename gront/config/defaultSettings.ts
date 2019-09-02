@@ -43,18 +43,19 @@ export interface DefaultSettings {
 }
 
 export default {
-  navTheme: 'dark',
-  primaryColor: '#1890FF',
+  navTheme: 'light',
+  primaryColor: '#13C2C2',
   layout: 'sidemenu',
   contentWidth: 'Fluid',
-  fixedHeader: false,
-  autoHideHeader: false,
-  fixSiderbar: false,
+  fixedHeader: true,
+  autoHideHeader: true,
+  fixSiderbar: true,
   colorWeak: false,
   menu: {
     locale: true,
   },
-  title: 'Ant Design Pro',
+  title: 'GWALL GROUP',
   pwa: false,
   iconfontUrl: '',
+  collapse: true,
 } as DefaultSettings;

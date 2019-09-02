@@ -10,8 +10,8 @@ import org.gwallgroup.common.dubbo.SignService;
  */
 @Service
 public class SignServiceImpl implements SignService {
-    @Override
-    public String secret(String appKey) {
-        return "secret";
-    }
+  @Override
+  public String secret(String appKey) {
+    return "secret";
+  }
 }

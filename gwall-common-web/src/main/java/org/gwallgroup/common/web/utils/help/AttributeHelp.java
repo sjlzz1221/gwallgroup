@@ -10,27 +10,26 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class AttributeHelp {
 
-    public static String getHeader(String key, HttpServletRequest request, String defaultValue) {
-        if (key == null) {
-            return defaultValue;
-        }
-        String result = request.getHeader(key);
-        if (result != null) {
-            return result;
-        }
-        result = request.getParameter(key);
-        if (result != null) {
-            return result;
-        }
-        for (Cookie cookie : request.getCookies()) {
-            if (key.equals(cookie.getName())) {
-                result = cookie.getValue();
-            }
-        }
-        if (result != null) {
-            return result;
-        }
-        return defaultValue;
+  public static String getHeader(String key, HttpServletRequest request, String defaultValue) {
+    if (key == null) {
+      return defaultValue;
     }
-
+    String result = request.getHeader(key);
+    if (result != null) {
+      return result;
+    }
+    result = request.getParameter(key);
+    if (result != null) {
+      return result;
+    }
+    for (Cookie cookie : request.getCookies()) {
+      if (key.equals(cookie.getName())) {
+        result = cookie.getValue();
+      }
+    }
+    if (result != null) {
+      return result;
+    }
+    return defaultValue;
+  }
 }

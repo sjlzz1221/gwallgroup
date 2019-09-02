@@ -1,21 +1,31 @@
 package org.gwallgroup.gwall.filter.authentication;
 
+import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.setResponseStatus;
+
 import com.alibaba.nacos.common.util.Md5Utils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.Reference;
-import org.gwallgroup.common.constants.Xheader;
 import org.gwallgroup.common.dubbo.LoginStatusService;
 import org.gwallgroup.common.entity.LoginCheck;
+import org.gwallgroup.common.web.constants.Xheader;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.core.Ordered;
 import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
-import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.setResponseStatus;
-
-/** 验证用户登入，调用认证模块 */
+/**
+ * 验证用户登入，调用认证模块
+ *
+ * @author jsen
+ */
 @Component
+@Slf4j
 public class AuthenticationGatewayFilterFactory
     extends AbstractGatewayFilterFactory<AuthenticationGatewayFilterFactory.Config> {
 
@@ -28,8 +38,20 @@ public class AuthenticationGatewayFilterFactory
 
   @Override
   public GatewayFilter apply(Config config) {
-    return (exchange, chain) -> {
-      System.out.println("AuthenticationGatewayFilterFactory");
+    return new InnerFilter(loginStatusService);
+  }
+
+  private static class InnerFilter implements GatewayFilter, Ordered {
+
+    LoginStatusService loginStatusService;
+
+    InnerFilter(LoginStatusService loginStatusService) {
+      this.loginStatusService = loginStatusService;
+    }
+
+    @Override
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+      log.info("AuthenticationGatewayFilterFactory");
       ServerHttpRequest req = exchange.getRequest();
       String serviceType = getAttr(Xheader.X_ST, req, Xheader.DEFAULT);
       String loginType = getAttr(Xheader.X_LT, req, Xheader.DEFAULT);
@@ -53,12 +75,18 @@ public class AuthenticationGatewayFilterFactory
         // 401 or else complete
         return exchange.getResponse().setComplete();
       }
-    };
+    }
+
+    @Override
+    public int getOrder() {
+      // 优先于LoginFacade执行
+      return 1;
+    }
   }
 
   public static class Config {}
 
-  private String getAttr(String key, ServerHttpRequest request, String defaultValue) {
+  private static String getAttr(String key, ServerHttpRequest request, String defaultValue) {
     if (key == null) {
       return defaultValue;
     }
