@@ -1,3 +1,10 @@
+# 启动
+    启动 mysql mongo redis，注意 authentication mysql的用户名和密码配置
+    配置好nacos服务器地址
+    启动 gwall guard authentication 模块
+    启动gront cnpm i & npm run start:no-mock，访问8000端口 admin/ant.design
+
+
 # gwall
 
     mongodb
@@ -10,7 +17,6 @@
     网关下的用户认证系统
     网关下有用户需用户认证api的必须有认证系统
     基于redis的sso登录
-    
     
 # authorization
     

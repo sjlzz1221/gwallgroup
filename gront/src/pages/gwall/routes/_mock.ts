@@ -98,8 +98,8 @@ function deleteRule(req: Request, res: Response, u: string, b: Request) {
 }
 
 export default {
-  'GET /guard/gwall-gateway/routes': getRule,
-  'GET /guard/gwall-naming/instances': getInstances,
-  'POST /guard/gwall-gateway/routes': postRule,
-  'DELETE /guard/gwall-gateway/routes': deleteRule,
+  'GET /api/gateway/guard/100/gwall-gateway/routes': getRule,
+  'GET /api/gateway/guard/100/gwall-naming/instances': getInstances,
+  'POST /api/gateway/guard/100/gwall-gateway/routes': postRule,
+  'DELETE /api/gateway/guard/100/gwall-gateway/routes': deleteRule,
 };

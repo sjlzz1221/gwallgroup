@@ -33,9 +33,10 @@
 
     <dependency>
       <groupId>org.gwallgroup.gateway</groupId>
-      <artifactId>gwall-common-gateway</artifactId>
+      <artifactId>gwall-common-web</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
+
   </dependencies>
 
 </project>

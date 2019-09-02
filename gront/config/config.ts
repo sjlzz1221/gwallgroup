@@ -111,7 +111,7 @@ export default {
             {
               path: '/gwall',
               name: 'gwall',
-              icon: 'smile',
+              icon: 'api',
               routes: [
                 {
                   name: 'routes',
@@ -120,12 +120,12 @@ export default {
                 },
               ],
             },
-            {
-              path: '/welcome',
-              name: 'welcome',
-              icon: 'smile',
-              component: './Welcome',
-            },
+            // {
+            //   path: '/welcome',
+            //   name: 'welcome',
+            //   icon: 'smile',
+            //   component: './Welcome',
+            // },
             // {
             //   path: 'https://pro.ant.design/docs/getting-started-cn',
             //   target: '_blank',
