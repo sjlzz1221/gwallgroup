@@ -80,7 +80,7 @@ public class AuthenticationGatewayFilterFactory
     @Override
     public int getOrder() {
       // 优先于LoginFacade执行
-      return 1;
+      return 0;
     }
   }
 
