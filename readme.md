@@ -1,23 +1,34 @@
 # gwall
+
+    mongodb
     开放式网关
     必须 核心网关
     
 # authentication
+
+    redis + mysql
     网关下的用户认证系统
     网关下有用户需用户认证api的必须有认证系统
     基于redis的sso登录
+    
+    
 # authorization
+    
+    redis
     网关下的权限系统
     网关下有权限认证api的必须有权限系统
+    
+    
+# gront
+    数据中台，目前只用于gwall路由管理，后期实现业务级别数据控制
+    
+    
 # openapi
     网关下的开发api授权系统
     网关下有开放api的必须有开发api授权系统
     
 # oauth2
     第三方登录支持
-    
-# gront
-    数据中台，目前只用于gwall路由管理，后期实现业务级别数据控制
     
 # gwall优点
     关注业务：集成了sso和api权限控制，在开发的时候，开发者只需要关注自己的业务，

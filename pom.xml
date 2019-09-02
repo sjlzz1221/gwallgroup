@@ -20,7 +20,7 @@
   <modules>
     <module>gwall</module>
     <module>authentication</module>
-    <module>gwall-common</module>
+    <module>gwall-common-gateway</module>
     <module>authorization</module>
     <module>openapi</module>
     <module>oauth2</module>

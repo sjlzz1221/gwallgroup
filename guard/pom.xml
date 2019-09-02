@@ -29,7 +29,7 @@
 
         <dependency>
             <groupId>org.gwallgroup.gateway</groupId>
-            <artifactId>gwall-common</artifactId>
+            <artifactId>gwall-common-gateway</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
